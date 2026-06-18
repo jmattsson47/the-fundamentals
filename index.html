@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn how software works from the ground up. 12 interactive courses covering databases, APIs, React, TypeScript, and more. Zero prerequisites.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='2' y='4' width='28' height='5' rx='2' fill='%2334d399'/><rect x='2' y='11' width='28' height='5' rx='2' fill='%2360a5fa'/><rect x='2' y='18' width='28' height='5' rx='2' fill='%23c084fc'/><rect x='2' y='25' width='28' height='5' rx='2' fill='%23fbbf24'/></svg>">
   <title>The Fundamentals</title>
   <link rel="stylesheet" href="/css/shared.css">
   <style>
@@ -293,6 +295,7 @@
       </div>
 
       <p class="hero-hint">Press <kbd>Cmd</kbd> + <kbd>K</kbd> to search all lessons</p>
+      <div class="progress-summary" id="progress-summary"></div>
     </section>
 
     <section class="courses">
@@ -457,12 +460,20 @@
     (function () {
       try {
         var visited = JSON.parse(localStorage.getItem('fundamentals-visited') || '{}');
+        var visitedCount = 0;
         document.querySelectorAll('.course-card[data-course]').forEach(function (card) {
           var courseId = card.getAttribute('data-course');
           if (visited[courseId]) {
             card.classList.add('completed');
+            visitedCount++;
           }
         });
+        // Show progress summary
+        var progressEl = document.getElementById('progress-summary');
+        if (progressEl && visitedCount > 0) {
+          progressEl.innerHTML = visitedCount + ' of 12 courses completed' +
+            '<div class="progress-bar"><div class="progress-bar-fill" style="width:' + Math.round(visitedCount / 12 * 100) + '%"></div></div>';
+        }
       } catch (e) {
         // localStorage unavailable
       }

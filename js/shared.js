@@ -69,6 +69,31 @@
   }
 
   /* ----------------------------------------------------------
+     Sub-Lesson Progress Tracking
+     ---------------------------------------------------------- */
+  function markLessonVisited(courseId, lessonNum) {
+    try {
+      var progress = JSON.parse(localStorage.getItem('fundamentals-lesson-progress') || '{}');
+      if (!progress[courseId]) progress[courseId] = [];
+      if (progress[courseId].indexOf(lessonNum) === -1) {
+        progress[courseId].push(lessonNum);
+      }
+      localStorage.setItem('fundamentals-lesson-progress', JSON.stringify(progress));
+    } catch (e) {
+      // localStorage unavailable
+    }
+  }
+
+  function getLessonProgress(courseId) {
+    try {
+      var progress = JSON.parse(localStorage.getItem('fundamentals-lesson-progress') || '{}');
+      return progress[courseId] || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /* ----------------------------------------------------------
      Command Palette — Course Index
      ---------------------------------------------------------- */
   var courseIndex = [
@@ -355,5 +380,101 @@
         closePalette();
       }
     });
+
+    /* --- Mobile Search Button --- */
+    var searchBtn = document.createElement('button');
+    searchBtn.className = 'search-toggle';
+    searchBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+    searchBtn.setAttribute('aria-label', 'Search lessons');
+    searchBtn.addEventListener('click', function () {
+      openPalette();
+    });
+    document.body.appendChild(searchBtn);
+
+    /* --- Keyboard Navigation Between Lessons (Arrow Keys) --- */
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+      if (paletteOverlay.classList.contains('open')) return;
+
+      var activeLesson = document.querySelector('.lesson.active');
+      if (!activeLesson) return;
+
+      var lessonMatch = activeLesson.id.match(/lesson(\d+)/);
+      if (!lessonMatch) return;
+
+      var currentNum = parseInt(lessonMatch[1]);
+      var nextNum = e.key === 'ArrowRight' ? currentNum + 1 : currentNum - 1;
+
+      if (document.getElementById('lesson' + nextNum) && typeof window.goTo === 'function') {
+        window.goTo(nextNum);
+      }
+    });
+
+    /* --- Sub-Lesson Visit Tracking & Course Nav Footer --- */
+    if (pathMatch) {
+      var currentCourseId = pathMatch[1];
+      var visitedLessons = getLessonProgress(currentCourseId);
+
+      // Mark the initially active lesson as visited
+      var activeLesson = document.querySelector('.lesson.active');
+      if (activeLesson) {
+        var activeMatch = activeLesson.id.match(/lesson(\d+)/);
+        if (activeMatch) {
+          markLessonVisited(currentCourseId, parseInt(activeMatch[1]));
+          visitedLessons = getLessonProgress(currentCourseId);
+        }
+      }
+
+      // Find and mark nav buttons as visited, add click tracking
+      var navButtons = document.querySelectorAll('[id^="nav"]');
+      navButtons.forEach(function (btn) {
+        if (btn.tagName !== 'BUTTON') return;
+        var navMatch = btn.id.match(/^nav(\d+)$/);
+        if (!navMatch) return;
+
+        var lessonNum = parseInt(navMatch[1]);
+        if (visitedLessons.indexOf(lessonNum) !== -1) {
+          btn.classList.add('visited');
+        }
+
+        btn.addEventListener('click', function () {
+          markLessonVisited(currentCourseId, lessonNum);
+          btn.classList.add('visited');
+        });
+      });
+
+      // Auto-generate course navigation footer
+      var courseIdx = -1;
+      for (var ci = 0; ci < courseIndex.length; ci++) {
+        if (courseIndex[ci].id === currentCourseId) { courseIdx = ci; break; }
+      }
+
+      if (courseIdx !== -1) {
+        var container = document.querySelector('.container');
+        if (container) {
+          var navFooter = document.createElement('div');
+          navFooter.className = 'course-nav-footer';
+          var footerHTML = '';
+
+          if (courseIdx > 0) {
+            var prev = courseIndex[courseIdx - 1];
+            footerHTML += '<a href="/lessons/' + prev.id + '.html" class="course-nav-prev">\u2190 ' + prev.course + '</a>';
+          } else {
+            footerHTML += '<span></span>';
+          }
+
+          if (courseIdx < courseIndex.length - 1) {
+            var next = courseIndex[courseIdx + 1];
+            footerHTML += '<a href="/lessons/' + next.id + '.html" class="course-nav-next">' + next.course + ' \u2192</a>';
+          } else {
+            footerHTML += '<span></span>';
+          }
+
+          navFooter.innerHTML = footerHTML;
+          container.appendChild(navFooter);
+        }
+      }
+    }
   });
 })();

@@ -972,3 +972,113 @@ p code, li code, td code {
   letter-spacing: 1px;
   margin-bottom: 12px;
 }
+
+/* ============================================================
+   Mobile Search Button
+   ============================================================ */
+.search-toggle {
+  position: fixed;
+  top: 16px;
+  left: 64px;
+  z-index: 201;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-nav-btn);
+  border: 1px solid var(--border-nav-btn);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.search-toggle:hover {
+  background: var(--bg-btn);
+}
+
+@media (min-width: 1024px) {
+  .search-toggle { display: none; }
+}
+
+/* ============================================================
+   Landing Page Progress Summary
+   ============================================================ */
+.progress-summary {
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.progress-bar {
+  width: 100%;
+  max-width: 300px;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  margin: 8px auto 0;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent-green);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* ============================================================
+   Course Navigation Footer
+   ============================================================ */
+.course-nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.course-nav-footer a {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.course-nav-footer a:hover {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+.course-nav-next { margin-left: auto; }
+
+/* ============================================================
+   Nav Button Visited Indicator
+   ============================================================ */
+.nav button.visited,
+.nav-btn.visited,
+.top-nav button.visited {
+  position: relative;
+}
+
+.nav button.visited::after,
+.nav-btn.visited::after,
+.top-nav button.visited::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-green);
+}
+
+.nav button.active.visited::after,
+.nav-btn.active.visited::after,
+.top-nav button.active.visited::after {
+  display: none;
+}
