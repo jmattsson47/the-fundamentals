@@ -25,6 +25,18 @@ Always run `cd ~/linq-labs && claude` — not from `~`. This keeps memory scoped
 - Some courses use `goTo(n)`, others use `goToLesson(n)`. Both are wrapped by shared.js.
 - View Transitions API handles cross-page fades. Sidebar has `view-transition-name: sidebar` to stay static.
 
+## Auth gate
+
+- The site is gated behind **Google sign-in** (only verified `@linqapp.com`).
+  Enforced by `middleware.js` (Vercel Edge) + `api/auth/*`, session signed with
+  Web Crypto (no npm deps). Added so the site can hold real internal content
+  (e.g. the Linq Data Layer course) without being publicly readable.
+- **Fail-closed:** requires env vars `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+  `AUTH_SECRET`, `ALLOWED_HD`. If they're unset, nobody can get in — don't deploy
+  the auth code without setting them first. Full setup in [AUTH.md](AUTH.md).
+- This is the one exception to "no build step": the static site stays static;
+  only the thin auth layer is serverless.
+
 ## Deploy
 
 ```

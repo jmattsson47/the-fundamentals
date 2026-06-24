@@ -2,3 +2,8 @@ node_modules/
 .vercel/
 .DS_Store
 .vercel
+
+# Secrets — never commit. Use Vercel env vars in production.
+.env
+.env.local
+.env.*.local
