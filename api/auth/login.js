@@ -1,6 +1,6 @@
 /* Redirects the visitor to Google's consent screen. */
 
-import { STATE_COOKIE } from '../../lib/auth.js';
+import { STATE_COOKIE, env } from '../../lib/auth.js';
 
 export const config = { runtime: 'edge' };
 
@@ -8,8 +8,8 @@ export default async function handler(request) {
   var url = new URL(request.url);
   var returnTo = url.searchParams.get('returnTo') || '/';
 
-  var clientId = process.env.GOOGLE_CLIENT_ID;
-  var allowedDomain = process.env.ALLOWED_HD || 'linqapp.com';
+  var clientId = env('GOOGLE_CLIENT_ID');
+  var allowedDomain = env('ALLOWED_HD', 'linqapp.com');
   var redirectUri = url.origin + '/api/auth/callback';
 
   // CSRF protection: random nonce stored in a cookie AND echoed in `state`.

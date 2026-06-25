@@ -6,7 +6,7 @@
    match. The /api/auth/* endpoints and static assets are exempt.
    ============================================================ */
 
-import { SESSION_COOKIE, verifySession, readCookie } from './lib/auth.js';
+import { SESSION_COOKIE, verifySession, readCookie, env } from './lib/auth.js';
 
 export const config = {
   // Protect every route EXCEPT the auth endpoints, Vercel internals,
@@ -18,7 +18,7 @@ export const config = {
 };
 
 export default async function middleware(request) {
-  var secret = process.env.AUTH_SECRET;
+  var secret = env('AUTH_SECRET');
   var url = new URL(request.url);
 
   var token = readCookie(request, SESSION_COOKIE);

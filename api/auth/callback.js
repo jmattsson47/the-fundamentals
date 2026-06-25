@@ -1,7 +1,7 @@
 /* Handles Google's redirect: exchanges the code, checks the email
    domain, and sets the signed session cookie. */
 
-import { SESSION_COOKIE, STATE_COOKIE, SESSION_TTL_SECONDS, signSession, readCookie } from '../../lib/auth.js';
+import { SESSION_COOKIE, STATE_COOKIE, SESSION_TTL_SECONDS, signSession, readCookie, env } from '../../lib/auth.js';
 
 export const config = { runtime: 'edge' };
 
@@ -29,7 +29,7 @@ export default async function handler(request) {
   var url = new URL(request.url);
   var code = url.searchParams.get('code');
   var state = url.searchParams.get('state');
-  var allowedDomain = process.env.ALLOWED_HD || 'linqapp.com';
+  var allowedDomain = env('ALLOWED_HD', 'linqapp.com');
 
   if (!code || !state) return deny('Missing authorization code.');
 
@@ -53,8 +53,8 @@ export default async function handler(request) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       code: code,
-      client_id: process.env.GOOGLE_CLIENT_ID || '',
-      client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+      client_id: env('GOOGLE_CLIENT_ID'),
+      client_secret: env('GOOGLE_CLIENT_SECRET'),
       redirect_uri: url.origin + '/api/auth/callback',
       grant_type: 'authorization_code'
     })
@@ -77,7 +77,7 @@ export default async function handler(request) {
 
   // Issue the session cookie
   var exp = Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS;
-  var sessionToken = await signSession(process.env.AUTH_SECRET, { email: email, exp: exp });
+  var sessionToken = await signSession(env('AUTH_SECRET'), { email: email, exp: exp });
 
   var returnTo = (stateObj.r && typeof stateObj.r === 'string' && stateObj.r.charAt(0) === '/') ? stateObj.r : '/';
 
